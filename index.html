@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Feliz Cumpleaños! - Regalo Especial</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Raleway:900&display=swap");
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            overflow: hidden;
+        }
+
+        #rainCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        #container {
+            position: absolute;
+            margin: auto;
+            width: 100vw;
+            height: 80pt;
+            top: 0;
+            bottom: 0;
+            filter: blur(0.6px);
+        }
+
+        #text1,
+        #text2 {
+            position: absolute;
+            width: 100%;
+            display: inline-block;
+            font-family: "Raleway", sans-serif;
+            font-size: 80pt;
+            text-align: center;
+            color: #D1D5DC;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            user-select: none;
+        }
+
+        #birthdayVideo {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65vw;
+            height: auto;
+            max-height: 65vh;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="rainCanvas"></canvas>
+    <div id="container">
+        <span id="text1"></span>
+        <span id="text2"></span>
+    </div>
+
+    <img id="birthdayVideo" src="videoeditoso.gif" alt="Cumpleaños0"/>
+    
+    <script>
+       // === Lluvia en columnas estilo Matrix ===
+const canvas = document.getElementById('rainCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const emoticons = ["ʕ•́ᴥ•̀ʔっ","≧◉ᴥ◉≦", " ◡́.◡̀","^◡^ ","─‿‿─","ᕙ(`▿´)ᕗ"];
+const colors = ['#ffc2d1'];
+
+const fontSize = 12; // tamaño base de los símbolos
+const columns = Math.floor(canvas.width / fontSize);
+
+// Cada columna tiene una posición de caída (y)
+const drops = Array(columns).fill(1);
+
+function drawRain() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; // transparencia para estela
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = colors[0];
+    ctx.font = `${fontSize}px monospace`;
+
+    drops.forEach((y, i) => {
+        const text = emoticons[Math.floor(Math.random() * emoticons.length)];
+        ctx.fillText(text, i * fontSize, y * fontSize);
+
+        // reinicio aleatorio de la columna
+        if (y * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
+
+        drops[i]++;
+    });
+}
+
+setInterval(drawRain, 50);
+
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+        // === Animación de textos y transición al video ===
+        const elts = {
+            text1: document.getElementById("text1"),
+            text2: document.getElementById("text2")
+        };
+
+        const texts = ['4','3','2','1','¡Feliz Cumpleaños!','VIDEO'];
+        const morphTime = 0.5;
+        const cooldownTime = 2;
+
+        let textIndex = 0;
+        let time = new Date();
+        let morph = 0;
+        let cooldown = 0;
+
+        elts.text1.textContent = texts[textIndex % texts.length];
+        elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+
+        function doMorph() {
+            morph -= cooldown;
+            cooldown = 0;
+            let fraction = morph / morphTime;
+
+            if (fraction > 1) {
+                cooldown = cooldownTime;
+                fraction = 1;
+            }
+            setMorph(fraction);
+        }
+
+        function setMorph(fraction) {
+            elts.text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+            elts.text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+            fraction = 1 - fraction;
+            elts.text1.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+            elts.text1.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+            elts.text1.textContent = texts[textIndex % texts.length];
+            elts.text2.textContent = texts[(textIndex + 1) % texts.length];
+        }
+
+        function doCooldown() {
+            morph = 0;
+            elts.text2.style.filter = "";
+            elts.text2.style.opacity = "100%";
+            elts.text1.style.filter = "";
+            elts.text1.style.opacity = "0%";
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let newTime = new Date();
+            let shouldIncrementIndex = cooldown > 0;
+            let dt = (newTime - time) / 1000;
+            time = newTime;
+            cooldown -= dt;
+
+            if (cooldown <= 0) {
+                if (shouldIncrementIndex) {
+                    textIndex++;
+                    if (textIndex >= texts.length) {
+                        document.getElementById("container").style.display = "none";
+                        document.getElementById("birthdayVideo").style.display = "block";
+                        return;
+                    }
+                }
+                doMorph();
+            } else {
+                doCooldown();
+            }
+        }
+
+        animate();
+    </script>
+</body>
+</html>
