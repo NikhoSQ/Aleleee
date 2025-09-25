@@ -5,126 +5,316 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Feliz Cumpleaños! - Regalo Especial</title>
     <style>
-        @import url("https://fonts.googleapis.com/css?family=Raleway:900&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            overflow: hidden;
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: 'Cambria', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Fondo de lluvia inicial */
         #rainCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            background: rgba(0, 0, 0, 0.8);
+            z-index: 1;
+            background: #000000;
+            transition: opacity 2s ease-in-out;
+        }
+
+        /* Fondo de estrellas - espacio negro puro */
+        #starCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: #000000;
+            opacity: 0;
+            transition: opacity 2.5s ease-in-out;
         }
 
         #container {
-            position: absolute;
-            margin: auto;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100vw;
-            height: 80pt;
-            top: 0;
-            bottom: 0;
-            filter: blur(0.6px);
+            height: 120pt;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #text1,
         #text2 {
-            position: absolute;
+            position: absolute; /* ✅ corregido */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
-            display: inline-block;
-            font-family: "Raleway", sans-serif;
-            font-size: 80pt;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Cambria", sans-serif;
+            font-size: clamp(50px, 10vw, 120px);
+            font-weight: 700;
             text-align: center;
-            color: #D1D5DC;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            color: #fbfbfb;
+            text-shadow: 
+                0 0 20px rgba(99, 179, 237, 0.4),
+                0 0 40px rgba(59, 130, 246, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.8);
             user-select: none;
+            letter-spacing: 2px;
+            line-height: 1.1;
         }
 
+        /* Preload del video/gif */
         #birthdayVideo {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 65vw;
+            width: min(75vw, 650px);
             height: auto;
-            max-height: 65vh;
-            border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.6);
-            z-index: 5;
+            max-height: 75vh;
+            border-radius: 12px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(59, 130, 246, 0.15),
+                0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        /* Loader para precargar */
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+            display: none;
+            color: #94a3b8;
+            font-family: "Cambria", sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(148, 163, 184, 0.3);
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Efectos sutiles */
+        .text-glow {
+            animation: subtleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes subtleGlow {
+            from { 
+                text-shadow: 
+                    0 0 20px rgba(99, 179, 237, 0.3),
+                    0 0 40px rgba(59, 130, 246, 0.15),
+                    0 2px 4px rgba(0, 0, 0, 0.8);
+            }
+            to { 
+                text-shadow: 
+                    0 0 25px rgba(99, 179, 237, 0.4),
+                    0 0 50px rgba(59, 130, 246, 0.2),
+                    0 2px 6px rgba(0, 0, 0, 0.9);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #text1, #text2 {
+                font-size: clamp(36px, 12vw, 80px);
+                letter-spacing: 1px;
+            }
+            
+            #birthdayVideo {
+                width: 90vw;
+                max-height: 70vh;
+            }
+
+            #container {
+                height: 80pt;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #text1, #text2 {
+                font-size: clamp(28px, 15vw, 60px);
+            }
         }
     </style>
 </head>
 <body>
     <canvas id="rainCanvas"></canvas>
+    <canvas id="starCanvas"></canvas>
+    
     <div id="container">
         <span id="text1"></span>
         <span id="text2"></span>
     </div>
 
-    <img id="birthdayVideo" src="videoeditoso.gif" alt="Cumpleaños0"/>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Preparando tu sorpresa...</p>
+    </div>
+
+    <img id="birthdayVideo" src="videoeditoso.gif" alt="Cumpleaños" />
     
     <script>
-       // === Lluvia en columnas estilo Matrix ===
-const canvas = document.getElementById('rainCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+        // === Variables globales ===
+        let isVideoLoaded = false;
+        let shouldShowVideo = false;
+        let animationId; // ✅ para cancelar animación
 
-const emoticons = ["ʕ•́ᴥ•̀ʔっ","≧◉ᴥ◉≦", " ◡́.◡̀","^◡^ ","─‿‿─","ᕙ(`▿´)ᕗ"];
-const colors = ['#ffc2d1'];
-
-const fontSize = 12; // tamaño base de los símbolos
-const columns = Math.floor(canvas.width / fontSize);
-
-// Cada columna tiene una posición de caída (y)
-const drops = Array(columns).fill(1);
-
-function drawRain() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; // transparencia para estela
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = colors[0];
-    ctx.font = `${fontSize}px monospace`;
-
-    drops.forEach((y, i) => {
-        const text = emoticons[Math.floor(Math.random() * emoticons.length)];
-        ctx.fillText(text, i * fontSize, y * fontSize);
-
-        // reinicio aleatorio de la columna
-        if (y * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
+        // === Precargar el video/gif ===
+        function preloadVideo() {
+            const video = document.getElementById('birthdayVideo');
+            const img = new Image();
+            
+            img.onload = function() {
+                isVideoLoaded = true;
+                console.log('Video precargado exitosamente');
+            };
+            
+            img.onerror = function() {
+                console.log('Error al precargar el video');
+                isVideoLoaded = true; // Continuar de cualquier manera
+            };
+            
+            img.src = 'videoeditoso.gif';
         }
 
-        drops[i]++;
-    });
-}
+        // === Lluvia minimalista ===
+        const canvas = document.getElementById('rainCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-setInterval(drawRain, 50);
+        const characters = ["✰, ★ " ];
+        const colors = ['#7b2cbf'];
 
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
+        const drops = Array(columns).fill(1);
 
-        // === Animación de textos y transición al video ===
+        function drawRain() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.048)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drops.forEach((y, i) => {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillStyle = color;
+                ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+                ctx.fillText(text, i * fontSize, y * fontSize);
+
+                if (y * fontSize > canvas.height && Math.random() > 0.97) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            });
+        }
+
+        let rainInterval = setInterval(drawRain, 20);
+
+        // === Estrellas realistas ===
+        const starCanvas = document.getElementById('starCanvas');
+        const starCtx = starCanvas.getContext('2d');
+        starCanvas.width = window.innerWidth;
+        starCanvas.height = window.innerHeight;
+
+        const stars = [];
+        const numStars = 100; // Reducido para ser más realista
+
+        function createStars() {
+            stars.length = 0;
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * starCanvas.width,
+                    y: Math.random() * starCanvas.height,
+                    size: Math.random() * 2.5 + 0.5,
+                    brightness: Math.random() * 0.8 + 0.2,
+                    twinkleSpeed: Math.random() * 0.3 + 0.1,
+                    twinklePhase: Math.random() * Math.PI * 2,
+                    color: Math.random() > 0.7 ? '#e0f2fe' : '#ffffff'
+                });
+            }
+        }
+
+        function drawStars() {
+            starCtx.fillStyle = '#000000';
+            starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+            stars.forEach(star => {
+                star.twinklePhase += star.twinkleSpeed;
+                const twinkle = Math.sin(star.twinklePhase) * 0.3 + 0.7;
+                const alpha = star.brightness * twinkle;
+
+                // Estrella principal
+                starCtx.fillStyle = star.color;
+                starCtx.globalAlpha = alpha;
+                starCtx.beginPath();
+                starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                starCtx.fill();
+
+                // Efecto de cruz de difracción para estrellas más brillantes
+                if (star.size > 1.8 && alpha > 0.6) {
+                    starCtx.globalAlpha = alpha * 0.4;
+                    starCtx.fillRect(star.x - star.size * 3, star.y - 0.3, star.size * 6, 0.6);
+                    starCtx.fillRect(star.x - 0.3, star.y - star.size * 3, 0.6, star.size * 6);
+                }
+
+                starCtx.globalAlpha = 9;
+            });
+        }
+
+        createStars();
+
+        // === Animación de textos elegante ===
         const elts = {
             text1: document.getElementById("text1"),
             text2: document.getElementById("text2")
         };
 
-        const texts = ['4','3','2','1','!Feliz', 'Cumpleaños!', 'trex1','VIDEO'];
+        const texts = ['...', '3', '2', '1', 'Feliz', 'Cumpleaños', 'Para ti', 'Alee!', 'Cada vez', 'más cerca', 'A los 25..', 'NoOooOo'];
         const morphTime = 0.5;
-        const cooldownTime = 2;
+        const cooldownTime = 0.70;
 
         let textIndex = 0;
         let time = new Date();
@@ -147,11 +337,19 @@ window.addEventListener('resize', () => {
         }
 
         function setMorph(fraction) {
-            elts.text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
-            elts.text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
-            fraction = 1 - fraction;
-            elts.text1.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
-            elts.text1.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+            // Transición suave con easing
+            const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+            const easedFraction = easeInOutCubic(fraction);
+
+            elts.text2.style.filter = `blur(${Math.max(0, 12 * (1 - easedFraction))}px)`;
+            elts.text2.style.opacity = `${easedFraction}`;
+            elts.text2.style.transform = `translate(-50%, -50%) scale(${0.9 + 0.1 * easedFraction})`;
+
+            const inverseFraction = 1 - easedFraction;
+            elts.text1.style.filter = `blur(${Math.max(0, 12 * inverseFraction)}px)`;
+            elts.text1.style.opacity = `${inverseFraction}`;
+            elts.text1.style.transform = `translate(-50%, -50%) scale(${0.9 + 0.1 * inverseFraction})`;
+
             elts.text1.textContent = texts[textIndex % texts.length];
             elts.text2.textContent = texts[(textIndex + 1) % texts.length];
         }
@@ -159,13 +357,39 @@ window.addEventListener('resize', () => {
         function doCooldown() {
             morph = 0;
             elts.text2.style.filter = "";
-            elts.text2.style.opacity = "100%";
+            elts.text2.style.opacity = "1";
+            elts.text2.style.transform = "translate(-50%, -50%) scale(1)";
             elts.text1.style.filter = "";
-            elts.text1.style.opacity = "0%";
+            elts.text1.style.opacity = "0";
+            elts.text1.style.transform = "translate(-50%, -50%) scale(1)";
         }
 
+        function transitionToSpace() {
+            document.getElementById('rainCanvas').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('starCanvas').style.opacity = '1';
+                let starInterval = setInterval(drawStars, 60);
+                clearInterval(rainInterval);
+                return starInterval;
+            }, 500);
+        }
+
+        function showVideo() { 
+            const video = document.getElementById('birthdayVideo'); 
+            const container = document.getElementById('container'); 
+            const loader = document.getElementById('loader'); 
+            container.style.opacity = '0'; 
+            container.style.transition = 'opacity 1.5s ease-out'; setTimeout(() => { 
+                container.style.display = 'none'; if (isVideoLoaded) { 
+                    video.style.display = 'block'; setTimeout(() => { 
+                        video.style.opacity = '1'; }, 200); } else { 
+                            loader.style.display = 'block'; 
+                            const checkLoad = setInterval(() => { if (isVideoLoaded) { clearInterval(checkLoad); 
+                                loader.style.display = 'none'; video.style.display = 'block'; setTimeout(() => { video.style.opacity = '1'; }, 200); } }, 100); } }, 1500); }
+
         function animate() {
-            requestAnimationFrame(animate);
+            animationId = requestAnimationFrame(animate); // ✅ guardamos id
             let newTime = new Date();
             let shouldIncrementIndex = cooldown > 0;
             let dt = (newTime - time) / 1000;
@@ -175,9 +399,13 @@ window.addEventListener('resize', () => {
             if (cooldown <= 0) {
                 if (shouldIncrementIndex) {
                     textIndex++;
+                    
                     if (textIndex >= texts.length) {
-                        document.getElementById("container").style.display = "none";
-                        document.getElementById("birthdayVideo").style.display = "block";
+                        transitionToSpace();
+                        setTimeout(() => {
+                            showVideo();
+                        }, 3500);
+                        cancelAnimationFrame(animationId); // ✅ detenemos loop
                         return;
                     }
                 }
@@ -187,7 +415,22 @@ window.addEventListener('resize', () => {
             }
         }
 
+        // === Inicialización ===
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            starCanvas.width = window.innerWidth;
+            starCanvas.height = window.innerHeight;
+            createStars();
+        });
+
+        preloadVideo();
         animate();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            elts.text1.classList.add('text-glow');
+            elts.text2.classList.add('text-glow');
+        });
     </script>
 </body>
 </html>
