@@ -1,436 +1,342 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Feliz Cumpleaños! - Regalo Especial</title>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>¡Feliz Cumpleaños! - Optimizado</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:'Cambria',sans-serif;
+      background:#000;color:#fff;overflow:hidden;position:relative;
+      height:100vh;width:100vw;
+    }
 
-        body {
-            font-family: 'Cambria', sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-            overflow: hidden;
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-        }
+    /* canvases */
+    #rainCanvas,#starCanvas{
+      position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;background:#000;
+      will-change:opacity;
+    }
+    #starCanvas{opacity:0;transition:opacity 1.2s ease-in-out;}
 
-        /* Fondo de lluvia inicial */
-        #rainCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            background: #000000;
-            transition: opacity 2s ease-in-out;
-        }
+    /* container + textos */
+    #container{
+      position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:100vw;height:auto;z-index:10;display:flex;align-items:center;justify-content:center;
+      pointer-events:none;
+    }
 
-        /* Fondo de estrellas - espacio negro puro */
-        #starCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            background: #000000;
-            opacity: 0;
-            transition: opacity 2.5s ease-in-out;
-        }
+    #text1,#text2{
+      position:absolute;top:50%;left:50%;
+      transform:translate(-50%,-50%) scale(1);
+      font-size:clamp(50px,10vw,120px);
+      font-weight:700;letter-spacing:2px;text-align:center;color:#fbfbfb;
+      user-select:none;line-height:1.1;
+      text-shadow:0 0 18px rgba(99,179,237,.35),0 0 36px rgba(59,130,246,.18);
+      will-change:opacity,transform;
+      -webkit-font-smoothing:antialiased;
+      backface-visibility:hidden;
+    }
 
-        #container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100vw;
-            height: 120pt;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    /* glow animation (light) - lightweight */
+    .text-glow{animation:subtleGlow 3s ease-in-out infinite alternate}
+    @keyframes subtleGlow{
+      from{ text-shadow:0 0 18px rgba(99,179,237,.25),0 0 36px rgba(59,130,246,.12) }
+      to  { text-shadow:0 0 22px rgba(99,179,237,.4),0 0 46px rgba(59,130,246,.2)  }
+    }
 
-        #text1,
-        #text2 {
-            position: absolute; /* ✅ corregido */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Cambria", sans-serif;
-            font-size: clamp(50px, 10vw, 120px);
-            font-weight: 700;
-            text-align: center;
-            color: #fbfbfb;
-            text-shadow: 
-                0 0 20px rgba(99, 179, 237, 0.4),
-                0 0 40px rgba(59, 130, 246, 0.2),
-                0 2px 4px rgba(0, 0, 0, 0.8);
-            user-select: none;
-            letter-spacing: 2px;
-            line-height: 1.1;
-        }
+    /* responsive */
+    @media (max-width:768px){ #text1,#text2{ font-size:clamp(36px,12vw,80px); letter-spacing:1px } }
+    @media (max-width:480px){ #text1,#text2{ font-size:clamp(28px,15vw,60px) } }
 
-        /* Preload del video/gif */
-        #birthdayVideo {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: min(75vw, 650px);
-            height: auto;
-            max-height: 75vh;
-            border-radius: 12px;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.6),
-                0 0 40px rgba(59, 130, 246, 0.15),
-                0 0 1px rgba(255, 255, 255, 0.1);
-            z-index: 15;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            border: 1px solid rgba(59, 130, 246, 0.1);
-        }
-
-        /* Loader para precargar */
-        #loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            display: none;
-            color: #94a3b8;
-            font-family: "Cambria", sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 2px solid rgba(148, 163, 184, 0.3);
-            border-top: 2px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1.2s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Efectos sutiles */
-        .text-glow {
-            animation: subtleGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes subtleGlow {
-            from { 
-                text-shadow: 
-                    0 0 20px rgba(99, 179, 237, 0.3),
-                    0 0 40px rgba(59, 130, 246, 0.15),
-                    0 2px 4px rgba(0, 0, 0, 0.8);
-            }
-            to { 
-                text-shadow: 
-                    0 0 25px rgba(99, 179, 237, 0.4),
-                    0 0 50px rgba(59, 130, 246, 0.2),
-                    0 2px 6px rgba(0, 0, 0, 0.9);
-            }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            #text1, #text2 {
-                font-size: clamp(36px, 12vw, 80px);
-                letter-spacing: 1px;
-            }
-            
-            #birthdayVideo {
-                width: 90vw;
-                max-height: 70vh;
-            }
-
-            #container {
-                height: 80pt;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #text1, #text2 {
-                font-size: clamp(28px, 15vw, 60px);
-            }
-        }
-    </style>
+    /* hidden img (preload) */
+    #birthdayVideo{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;
+      width:min(75vw,650px);max-height:75vh;border-radius:12px;opacity:0;transition:opacity .2s}
+    #loader{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;color:#94a3b8}
+    .spinner{width:32px;height:32px;border-radius:50%;border:2px solid rgba(148,163,184,.3);border-top:2px solid #3b82f6;animation:spin 1.2s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-    <canvas id="rainCanvas"></canvas>
-    <canvas id="starCanvas"></canvas>
-    
-    <div id="container">
-        <span id="text1"></span>
-        <span id="text2"></span>
-    </div>
+  <canvas id="rainCanvas"></canvas>
+  <canvas id="starCanvas"></canvas>
 
-    <div id="loader">
-        <div class="spinner"></div>
-        <p>Preparando tu sorpresa...</p>
-    </div>
+  <div id="container">
+    <span id="text1"></span>
+    <span id="text2"></span>
+  </div>
 
-    <img id="birthdayVideo" src="videoeditoso.gif" alt="Cumpleaños" />
-    
-    <script>
-        // === Variables globales ===
-        let isVideoLoaded = false;
-        let shouldShowVideo = false;
-        let animationId; // ✅ para cancelar animación
+  <div id="loader"><div class="spinner"></div><p>Preparando tu sorpresa...</p></div>
+  <img id="birthdayVideo" src="videoeditoso.gif" alt="Cumpleaños" />
 
-        // === Precargar el video/gif ===
-        function preloadVideo() {
-            const video = document.getElementById('birthdayVideo');
-            const img = new Image();
-            
-            img.onload = function() {
-                isVideoLoaded = true;
-                console.log('Video precargado exitosamente');
-            };
-            
-            img.onerror = function() {
-                console.log('Error al precargar el video');
-                isVideoLoaded = true; // Continuar de cualquier manera
-            };
-            
-            img.src = 'videoeditoso.gif';
-        }
+  <script>
+    // ---------- Preload video ----------
+    let isVideoLoaded = false;
+    function preloadVideo(){
+      const img = new Image();
+      img.onload = ()=> { isVideoLoaded = true; console.log('gif cargado'); };
+      img.onerror = ()=> { isVideoLoaded = true; console.warn('error preload gif, continuando'); };
+      img.src = document.getElementById('birthdayVideo').src;
+    }
 
-        // === Lluvia minimalista ===
-        const canvas = document.getElementById('rainCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    // ---------- CANVAS LLUVIA (configurable) ----------
+    const rainCanvas = document.getElementById('rainCanvas');
+    const ctx = rainCanvas.getContext('2d');
+    let DPR = Math.max(1, window.devicePixelRatio || 1);
 
-        const characters = ["✰, ★ " ];
-        const colors = ['#7b2cbf'];
+    let fontSize = 16; // menos denso -> mejor en móvil
+    let columns = 0;
+    let drops = [];
 
-        const fontSize = 14;
-        const columns = Math.floor(canvas.width / fontSize);
-        const drops = Array(columns).fill(1);
+    const characters = ['✰','★']; // corregido
+    const color = '#7b2cbf';
 
-        function drawRain() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.048)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function resizeCanvases(){
+      DPR = Math.max(1, window.devicePixelRatio || 1);
+      rainCanvas.width = Math.floor(window.innerWidth * DPR);
+      rainCanvas.height = Math.floor(window.innerHeight * DPR);
+      rainCanvas.style.width = window.innerWidth + 'px';
+      rainCanvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0); // keep drawing at CSS pixels scale
 
-            drops.forEach((y, i) => {
-                const text = characters[Math.floor(Math.random() * characters.length)];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                ctx.fillStyle = color;
-                ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
-                ctx.fillText(text, i * fontSize, y * fontSize);
+      // recalcular columnas
+      columns = Math.max(2, Math.floor(window.innerWidth / fontSize));
+      drops = new Array(columns).fill(1).map(()=> Math.floor(Math.random()*20)); // dispersión inicial
+      // estrellas
+      starCanvas.width = Math.floor(window.innerWidth * DPR);
+      starCanvas.height = Math.floor(window.innerHeight * DPR);
+      starCanvas.style.width = window.innerWidth + 'px';
+      starCanvas.style.height = window.innerHeight + 'px';
+      starCtx.setTransform(DPR,0,0,DPR,0,0);
+      createStars();
+    }
 
-                if (y * fontSize > canvas.height && Math.random() > 0.97) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            });
-        }
+    // draw rain (lightweight)
+    function drawRain(){
+      // trail effect
+      ctx.fillStyle = 'rgba(0,0,0,0.06)';
+      ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
 
-        let rainInterval = setInterval(drawRain, 20);
+      ctx.fillStyle = color;
+      ctx.font = `${fontSize}px monospace`;
+      drops.forEach((y,i)=>{
+        const ch = characters[Math.floor(Math.random()*characters.length)];
+        ctx.fillText(ch, i * fontSize, y * fontSize);
+        // reset
+        if (y * fontSize > window.innerHeight && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+    }
 
-        // === Estrellas realistas ===
-        const starCanvas = document.getElementById('starCanvas');
-        const starCtx = starCanvas.getContext('2d');
-        starCanvas.width = window.innerWidth;
-        starCanvas.height = window.innerHeight;
+    // ---------- ESTRELLAS (activan después) ----------
+    const starCanvas = document.getElementById('starCanvas');
+    const starCtx = starCanvas.getContext('2d');
+    const stars = [];
+    let numStars = 80;
 
-        const stars = [];
-        const numStars = 100; // Reducido para ser más realista
-
-        function createStars() {
-            stars.length = 0;
-            for (let i = 0; i < numStars; i++) {
-                stars.push({
-                    x: Math.random() * starCanvas.width,
-                    y: Math.random() * starCanvas.height,
-                    size: Math.random() * 2.5 + 0.5,
-                    brightness: Math.random() * 0.8 + 0.2,
-                    twinkleSpeed: Math.random() * 0.3 + 0.1,
-                    twinklePhase: Math.random() * Math.PI * 2,
-                    color: Math.random() > 0.7 ? '#e0f2fe' : '#ffffff'
-                });
-            }
-        }
-
-        function drawStars() {
-            starCtx.fillStyle = '#000000';
-            starCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
-
-            stars.forEach(star => {
-                star.twinklePhase += star.twinkleSpeed;
-                const twinkle = Math.sin(star.twinklePhase) * 0.3 + 0.7;
-                const alpha = star.brightness * twinkle;
-
-                // Estrella principal
-                starCtx.fillStyle = star.color;
-                starCtx.globalAlpha = alpha;
-                starCtx.beginPath();
-                starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                starCtx.fill();
-
-                // Efecto de cruz de difracción para estrellas más brillantes
-                if (star.size > 1.8 && alpha > 0.6) {
-                    starCtx.globalAlpha = alpha * 0.4;
-                    starCtx.fillRect(star.x - star.size * 3, star.y - 0.3, star.size * 6, 0.6);
-                    starCtx.fillRect(star.x - 0.3, star.y - star.size * 3, 0.6, star.size * 6);
-                }
-
-                starCtx.globalAlpha = 9;
-            });
-        }
-
-        createStars();
-
-        // === Animación de textos elegante ===
-        const elts = {
-            text1: document.getElementById("text1"),
-            text2: document.getElementById("text2")
-        };
-
-        const texts = ['...', '3', '2', '1', 'Feliz', 'Cumpleaños', 'Para ti', 'Alee!', 'Cada vez', 'más cerca', 'A los 25..', 'NoOooOo'];
-        const morphTime = 0.5;
-        const cooldownTime = 0.70;
-
-        let textIndex = 0;
-        let time = new Date();
-        let morph = 0;
-        let cooldown = 0;
-
-        elts.text1.textContent = texts[textIndex % texts.length];
-        elts.text2.textContent = texts[(textIndex + 1) % texts.length];
-
-        function doMorph() {
-            morph -= cooldown;
-            cooldown = 0;
-            let fraction = morph / morphTime;
-
-            if (fraction > 1) {
-                cooldown = cooldownTime;
-                fraction = 1;
-            }
-            setMorph(fraction);
-        }
-
-        function setMorph(fraction) {
-            // Transición suave con easing
-            const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-            const easedFraction = easeInOutCubic(fraction);
-
-            elts.text2.style.filter = `blur(${Math.max(0, 12 * (1 - easedFraction))}px)`;
-            elts.text2.style.opacity = `${easedFraction}`;
-            elts.text2.style.transform = `translate(-50%, -50%) scale(${0.9 + 0.1 * easedFraction})`;
-
-            const inverseFraction = 1 - easedFraction;
-            elts.text1.style.filter = `blur(${Math.max(0, 12 * inverseFraction)}px)`;
-            elts.text1.style.opacity = `${inverseFraction}`;
-            elts.text1.style.transform = `translate(-50%, -50%) scale(${0.9 + 0.1 * inverseFraction})`;
-
-            elts.text1.textContent = texts[textIndex % texts.length];
-            elts.text2.textContent = texts[(textIndex + 1) % texts.length];
-        }
-
-        function doCooldown() {
-            morph = 0;
-            elts.text2.style.filter = "";
-            elts.text2.style.opacity = "1";
-            elts.text2.style.transform = "translate(-50%, -50%) scale(1)";
-            elts.text1.style.filter = "";
-            elts.text1.style.opacity = "0";
-            elts.text1.style.transform = "translate(-50%, -50%) scale(1)";
-        }
-
-        function transitionToSpace() {
-            document.getElementById('rainCanvas').style.opacity = '0';
-            
-            setTimeout(() => {
-                document.getElementById('starCanvas').style.opacity = '1';
-                let starInterval = setInterval(drawStars, 60);
-                clearInterval(rainInterval);
-                return starInterval;
-            }, 500);
-        }
-
-        function showVideo() { 
-            const video = document.getElementById('birthdayVideo'); 
-            const container = document.getElementById('container'); 
-            const loader = document.getElementById('loader'); 
-            container.style.opacity = '0'; 
-            container.style.transition = 'opacity 1.5s ease-out'; setTimeout(() => { 
-                container.style.display = 'none'; if (isVideoLoaded) { 
-                    video.style.display = 'block'; setTimeout(() => { 
-                        video.style.opacity = '1'; }, 200); } else { 
-                            loader.style.display = 'block'; 
-                            const checkLoad = setInterval(() => { if (isVideoLoaded) { clearInterval(checkLoad); 
-                                loader.style.display = 'none'; video.style.display = 'block'; setTimeout(() => { video.style.opacity = '1'; }, 200); } }, 100); } }, 1500); }
-
-        function animate() {
-            animationId = requestAnimationFrame(animate); // ✅ guardamos id
-            let newTime = new Date();
-            let shouldIncrementIndex = cooldown > 0;
-            let dt = (newTime - time) / 1000;
-            time = newTime;
-            cooldown -= dt;
-
-            if (cooldown <= 0) {
-                if (shouldIncrementIndex) {
-                    textIndex++;
-                    
-                    if (textIndex >= texts.length) {
-                        transitionToSpace();
-                        setTimeout(() => {
-                            showVideo();
-                        }, 3500);
-                        cancelAnimationFrame(animationId); // ✅ detenemos loop
-                        return;
-                    }
-                }
-                doMorph();
-            } else {
-                doCooldown();
-            }
-        }
-
-        // === Inicialización ===
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            starCanvas.width = window.innerWidth;
-            starCanvas.height = window.innerHeight;
-            createStars();
+    function createStars(){
+      stars.length = 0;
+      numStars = Math.min(120, Math.floor(window.innerWidth / 12)); // adaptativo
+      for(let i=0;i<numStars;i++){
+        stars.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          size: Math.random()*2.2 + 0.4,
+          brightness: Math.random()*0.8 + 0.2,
+          twinkleSpeed: Math.random()*0.06 + 0.02,
+          phase: Math.random() * Math.PI * 2,
+          color: Math.random() > 0.75 ? '#e0f2fe' : '#fff'
         });
+      }
+    }
 
-        preloadVideo();
-        animate();
+    function drawStarsFrame(){
+      starCtx.clearRect(0,0,window.innerWidth, window.innerHeight);
+      stars.forEach(s=>{
+        s.phase += s.twinkleSpeed;
+        const tw = (Math.sin(s.phase) * 0.5 + 0.5) * s.brightness;
+        starCtx.globalAlpha = tw;
+        starCtx.fillStyle = s.color;
+        starCtx.beginPath();
+        starCtx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+        starCtx.fill();
+      });
+      starCtx.globalAlpha = 1;
+    }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            elts.text1.classList.add('text-glow');
-            elts.text2.classList.add('text-glow');
-        });
-    </script>
+    // ---------- TEXTOS (morph optimizado) ----------
+    const elts = {
+      text1: document.getElementById('text1'),
+      text2: document.getElementById('text2')
+    };
+
+    const texts = ['...', '3', '2', '1', 'Feliz', 'Cumpleaños', 'Para ti', 'Alee!', 'Cada vez', 'más cerca', 'A los 25..', 'NoOooOo'];
+    const morphTime = 0.5;   // segundos de morph
+    const cooldownTime = 0.7; // segundos entre morphs (pausa)
+
+    let currentIndex = 0;
+    let nextIndex = 1;
+    let morphProgress = 0;   // tiempo en morph
+    let inCooldown = true;
+    let cooldown = cooldownTime;
+
+    // Initialize texts
+    function prepareInitialTexts(){
+      currentIndex = 0;
+      nextIndex = 1;
+      elts.text1.textContent = texts[currentIndex % texts.length];
+      elts.text2.textContent = texts[nextIndex % texts.length];
+      elts.text1.style.opacity = '1';
+      elts.text2.style.opacity = '0';
+      elts.text1.style.transform = 'translate(-50%,-50%) scale(1)';
+      elts.text2.style.transform = 'translate(-50%,-50%) scale(0.9)';
+    }
+
+    function easeInOut(t){
+      return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    }
+
+    function applyMorph(fraction){
+      const f = easeInOut(Math.max(0, Math.min(1, fraction)));
+      // text2 enters, text1 leaves
+      elts.text2.style.opacity = String(f);
+      elts.text2.style.transform = `translate(-50%,-50%) scale(${0.92 + 0.08*f})`;
+      elts.text1.style.opacity = String(1 - f);
+      elts.text1.style.transform = `translate(-50%,-50%) scale(${1 - 0.08*f})`;
+    }
+
+    // ---------- CONTROL DE ANIMACION ----------
+    let rafId = null;
+    let starRaf = null;
+    let lastTime = performance.now();
+    let stopMainLoop = false;
+    let startStarLoop = false;
+
+    function animate(now){
+      rafId = requestAnimationFrame(animate);
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      // draw rain while main loop runs
+      if(!stopMainLoop) drawRain();
+
+      // morph/cooldown state machine
+      if(inCooldown){
+        cooldown -= dt;
+        // during cooldown show stable current text
+        elts.text1.style.opacity = '1';
+        elts.text2.style.opacity = '0';
+        elts.text1.style.transform = 'translate(-50%,-50%) scale(1)';
+        elts.text2.style.transform = 'translate(-50%,-50%) scale(0.92)';
+        if(cooldown <= 0){
+          // start morph
+          inCooldown = false;
+          morphProgress = 0;
+          // ensure proper text content (already set previously, but keep safe)
+          elts.text1.textContent = texts[currentIndex % texts.length];
+          elts.text2.textContent = texts[nextIndex % texts.length];
+        }
+      } else {
+        // morphing
+        morphProgress += dt;
+        const fraction = morphProgress / morphTime;
+        if(fraction < 1){
+          applyMorph(fraction);
+        } else {
+          // morph finished: make next the current
+          applyMorph(1);
+          currentIndex = nextIndex;
+          nextIndex = currentIndex + 1;
+          // if no more next -> sequence finished
+          if(currentIndex >= texts.length - 1){
+            // end main sequence:
+            cancelAnimationFrame(rafId);
+            stopMainLoop = true;
+            transitionToSpace();
+            return;
+          } else {
+            // prepare for cooldown before next morph
+            inCooldown = true;
+            cooldown = cooldownTime;
+            // rotate content: text1 becomes current text, text2 next
+            elts.text1.textContent = texts[currentIndex % texts.length];
+            elts.text2.textContent = texts[nextIndex % texts.length];
+            // reset visual state for cooldown
+            elts.text1.style.opacity = '1';
+            elts.text2.style.opacity = '0';
+            elts.text1.style.transform = 'translate(-50%,-50%) scale(1)';
+            elts.text2.style.transform = 'translate(-50%,-50%) scale(0.92)';
+            morphProgress = 0;
+          }
+        }
+      }
+    }
+
+    // ---------- TRANSICION A ESTRELLAS + VIDEO ----------
+    function transitionToSpace(){
+      // desvanecer lluvia (canvas) y luego arrancar estrellas con requestAnimationFrame
+      rainCanvas.style.transition = 'opacity 1s ease-in-out';
+      rainCanvas.style.opacity = '0';
+      // después de 500ms mostrar estrellas y arrancar su loop
+      setTimeout(()=>{
+        document.getElementById('starCanvas').style.opacity = '1';
+        startStarLoop = true;
+        starLoop();
+      }, 500);
+
+      // Mostrar video después de 3500ms (igual que antes)
+      setTimeout(()=> showVideo(), 3500);
+    }
+
+    function starLoop(now){
+      if(!startStarLoop) return;
+      starRaf = requestAnimationFrame(starLoop);
+      drawStarsFrame();
+    }
+
+    // ---------- Mostrar video (igual que tu función) ----------
+    function showVideo(){
+      const video = document.getElementById('birthdayVideo');
+      const container = document.getElementById('container');
+      const loader = document.getElementById('loader');
+
+      container.style.transition = 'opacity 1.5s ease-out';
+      container.style.opacity = '0';
+      setTimeout(()=>{
+        container.style.display = 'none';
+        if(isVideoLoaded){
+          video.style.display = 'block';
+          setTimeout(()=> video.style.opacity = '1', 200);
+        } else {
+          loader.style.display = 'block';
+          const checkLoad = setInterval(()=>{
+            if(isVideoLoaded){
+              clearInterval(checkLoad);
+              loader.style.display = 'none';
+              video.style.display = 'block';
+              setTimeout(()=> video.style.opacity = '1',200);
+            }
+          },100);
+        }
+      },1500);
+    }
+
+    // ---------- Resize handling ----------
+    window.addEventListener('resize', ()=>{
+      resizeCanvases();
+    });
+
+    // ---------- Inicializacion ----------
+    preloadVideo();
+    resizeCanvases();
+    prepareInitialTexts();
+    elts.text1.classList.add('text-glow');
+    // start main animation loop
+    lastTime = performance.now();
+    requestAnimationFrame(animate);
+  </script>
 </body>
 </html>
