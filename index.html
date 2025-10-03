@@ -130,22 +130,32 @@
       createStars();
     }
 
-    // draw rain (lightweight)
-    function drawRain(){
-      // trail effect
-      ctx.fillStyle = 'rgba(0,0,0,0.06)';
-      ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
+    /* ---------- LLUVIA – ahora sin costo cuando no se ve ---------- */
+function drawRain(){
+  // trail más barato: solo 1 capa, viewport lógico, opacidad baja
+  ctx.fillStyle = 'rgba(0,0,0,0.04)';          // antes 0.06
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-      ctx.fillStyle = color;
-      ctx.font = `${fontSize}px monospace`;
-      drops.forEach((y,i)=>{
-        const ch = characters[Math.floor(Math.random()*characters.length)];
-        ctx.fillText(ch, i * fontSize, y * fontSize);
-        // reset
-        if (y * fontSize > window.innerHeight && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      });
-    }
+  ctx.fillStyle = color;
+  ctx.font = `${fontSize}px monospace`;
+  for(let i = 0; i < drops.length; i++){
+    const ch = characters[Math.floor(Math.random()*characters.length)];
+    ctx.fillText(ch, i * fontSize, drops[i] * fontSize);
+    if(drops[i] * fontSize > window.innerHeight && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+
+/* ---------- LOOP PRINCIPAL – dibuja lluvia sólo cuando hace falta ---------- */
+function animate(now){
+  rafId = requestAnimationFrame(animate);
+  const dt = (now - lastTime)/1000;
+  lastTime = now;
+
+  if(!stopMainLoop) drawRain();   // <<--- aquí sigue dibujándose
+
+  /* ... todo el resto de tu lógica de morph/cooldown sin cambios ... */
+}
 
     // ---------- ESTRELLAS (activan después) ----------
     const starCanvas = document.getElementById('starCanvas');
