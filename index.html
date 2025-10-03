@@ -58,6 +58,22 @@
     #loader{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;color:#94a3b8}
     .spinner{width:32px;height:32px;border-radius:50%;border:2px solid rgba(148,163,184,.3);border-top:2px solid #3b82f6;animation:spin 1.2s linear infinite;margin:0 auto 12px}
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media (max-width: 768px) {
+  #birthdayVideo {
+    width: 90vw;   /* usa casi todo el ancho */
+    max-height: 80vh; /* un poco más alto */
+  }
+}
+
+@media (max-width: 480px) {
+  #birthdayVideo {
+    width: 95vw;   /* ocupa casi todo el ancho de la pantalla */
+    max-height: 85vh;
+  }
+}
+
+
   </style>
 </head>
 <body>
